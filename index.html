@@ -156,6 +156,54 @@
             color: var(--accent-cyan);
         }
 
+        /* Language Switcher */
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 4px;
+            cursor: pointer;
+            position: relative;
+            gap: 2px;
+            transition: all 0.3s ease;
+            margin-right: 12px;
+        }
+        .lang-switcher:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(0,229,255,0.2);
+        }
+        .lang-option {
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 16px;
+            z-index: 1;
+            transition: color 0.3s ease;
+        }
+        .lang-slider {
+            position: absolute;
+            left: 4px;
+            width: 38px;
+            height: 28px;
+            background: linear-gradient(45deg, var(--accent-cyan), #00b8d4);
+            border-radius: 16px;
+            transition: transform 0.3s ease;
+        }
+        .lang-switcher #langEN { color: var(--bg-dark); font-weight: 700; }
+        .lang-switcher.ar-active .lang-slider { transform: translateX(42px); }
+        .lang-switcher.ar-active #langEN { color: var(--text-muted); font-weight: 600; }
+        .lang-switcher.ar-active #langAR { color: var(--bg-dark); font-weight: 700; }
+
+        /* RTL Support */
+        [dir="rtl"] .nav-content { flex-direction: row-reverse; }
+        [dir="rtl"] .nav-links { flex-direction: row-reverse; }
+        [dir="rtl"] .hero-content { text-align: right; }
+        [dir="rtl"] .feature-card { text-align: right; }
+        [dir="rtl"] .lang-switcher { margin-right: 0; margin-left: 12px; }
+
         /* Buttons */
         .btn {
             display: inline-flex;
@@ -1217,7 +1265,12 @@
                 <li><a href="#technology">Technology</a></li>
                 <li><a href="#about">About Founder</a></li>
             </ul>
-            <a href="#contact" class="btn btn-primary">Request Demo</a>
+            <div class="lang-switcher" id="langSwitcher" onclick="toggleLanguage()">
+                <span class="lang-option" id="langEN">EN</span>
+                <span class="lang-slider"></span>
+                <span class="lang-option" id="langAR">عربي</span>
+            </div>
+            <a href="#contact" class="btn btn-primary" data-en="Request Demo" data-ar="طلب عرض">Request Demo</a>
         </div>
     </nav>
 
@@ -1768,7 +1821,7 @@
                     <div class="contact-icon">✉️</div>
                     <div>
                         <div style="font-size: 0.9rem; color: var(--text-muted);">Email Us</div>
-                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);">contact@RaninSpot.ai</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);">contact@raninspot.com</div>
                     </div>
                 </div>
             </div>
@@ -1937,6 +1990,124 @@
         document.querySelectorAll('.feature-card').forEach((el, index) => {
             el.style.transitionDelay = `${index * 0.1}s`;
         });
+
+        // === LANGUAGE SWITCHER ===
+        let currentLang = 'en';
+        
+        const translations = {
+            // Nav
+            'Features': 'المميزات',
+            'How it Works': 'كيف يعمل',
+            'Technology': 'التقنية',
+            'About Founder': 'عن المؤسس',
+            'Request Demo': 'طلب عرض',
+            // Hero
+            'AI-Powered Medical Radiology Analysis Assistant': 'مساعد تحليل الأشعة الطبية المدعوم بالذكاء الاصطناعي',
+            'Explore Features': 'استكشف المميزات',
+            '🔒 HIPAA Compliant': '🔒 متوافق مع HIPAA',
+            '🩺 Radiologist Verified': '🩺 معتمد من أطباء الأشعة',
+            '⚡ 60-Second Analysis': '⚡ تحليل في 60 ثانية',
+            // Stats
+            'Exam Types Supported': 'أنواع الفحوصات المدعومة',
+            'CT Slices Per Scan': 'شريحة CT لكل مسح',
+            'Analysis Accuracy': 'دقة التحليل',
+            'Multi-Language Reports': 'تقارير متعددة اللغات',
+            // Features Section
+            'Intelligent Features': 'مميزات ذكية',
+            'Advanced capabilities powered by': 'قدرات متقدمة مدعومة بنماذج',
+            'Multi-Slice CT Analysis': 'تحليل CT متعدد الشرائح',
+            'Process and analyze up to 300 CT slices simultaneously with intelligent slice selection and comprehensive reporting.': 'معالجة وتحليل حتى 300 شريحة CT في وقت واحد مع اختيار ذكي للشرائح وتقارير شاملة.',
+            '12+ Medical Exam Types': '12+ نوع فحص طبي',
+            'Brain, Chest, Abdomen, Spine, Pelvis, and more. Comprehensive coverage across all major radiology specialties.': 'الدماغ، الصدر، البطن، العمود الفقري، الحوض، والمزيد. تغطية شاملة لجميع تخصصات الأشعة.',
+            'AI-Generated Reports': 'تقارير مولدة بالذكاء الاصطناعي',
+            'Structured radiology reports with findings, impressions, and recommendations following professional medical standards.': 'تقارير أشعة منظمة مع النتائج والانطباعات والتوصيات وفق المعايير الطبية المهنية.',
+            'DICOM Support': 'دعم DICOM',
+            'Full DICOM file support with automatic metadata extraction and PHI protection for patient privacy compliance.': 'دعم كامل لملفات DICOM مع استخراج تلقائي للبيانات وحماية خصوصية المرضى.',
+            'Multi-Language': 'متعدد اللغات',
+            'Generate reports in Arabic and English with professional medical terminology in both languages.': 'إنشاء تقارير بالعربية والإنجليزية بمصطلحات طبية احترافية في كلتا اللغتين.',
+            'Real-time Alerts': 'تنبيهات فورية',
+            'Instant Telegram notifications for completed analyses with report summaries and critical finding alerts.': 'إشعارات فورية عبر تيليجرام للتحليلات المكتملة مع ملخصات التقارير وتنبيهات النتائج الحرجة.',
+            // How it Works
+            'How It Works': 'كيف يعمل',
+            'Three simple steps to AI-powered radiology analysis': 'ثلاث خطوات بسيطة لتحليل الأشعة بالذكاء الاصطناعي',
+            'Upload': 'رفع',
+            'Upload DICOM files or medical images through our secure, HIPAA-compliant interface.': 'رفع ملفات DICOM أو الصور الطبية عبر واجهتنا الآمنة والمتوافقة مع HIPAA.',
+            'AI Analysis': 'تحليل الذكاء الاصطناعي',
+            'Our AI engine analyzes images using': 'محرك الذكاء الاصطناعي يحلل الصور باستخدام',
+            'advanced medical models.': 'نماذج طبية متقدمة.',
+            'Report': 'التقرير',
+            'Receive a structured radiology report with findings, impressions, and recommendations.': 'استلم تقرير أشعة منظم مع النتائج والانطباعات والتوصيات.',
+            // Technology
+            'Powered by Leading AI': 'مدعوم بأحدث تقنيات الذكاء الاصطناعي',
+            'Built on': 'مبني على',
+            "Google's most advanced AI infrastructure": 'أحدث بنية تحتية للذكاء الاصطناعي من Google',
+            // Contact
+            'Get In Touch': 'تواصل معنا',
+            'Email Us': 'راسلنا',
+            'Full Name': 'الاسم الكامل',
+            'Professional Email Address': 'البريد الإلكتروني المهني',
+            'Organization / Hospital': 'المنظمة / المستشفى',
+            'How can we help you?': 'كيف يمكننا مساعدتك؟',
+            'Send Message': 'إرسال رسالة',
+            // Footer
+            'Privacy Policy': 'سياسة الخصوصية',
+            'Terms of Service': 'شروط الخدمة',
+            'HIPAA Compliance': 'توافق HIPAA',
+            'All Rights Reserved.': 'جميع الحقوق محفوظة.',
+            'Developed by Omar Al-Ezzi': 'تطوير عمر العزي',
+            'Built with': 'بُني باستخدام',
+            'Founded by Omar Al-Ezzi': 'أسسه عمر العزي',
+        };
+
+        function toggleLanguage() {
+            const switcher = document.getElementById('langSwitcher');
+            if (currentLang === 'en') {
+                currentLang = 'ar';
+                switcher.classList.add('ar-active');
+                document.documentElement.setAttribute('dir', 'rtl');
+                document.documentElement.setAttribute('lang', 'ar');
+                applyTranslations('ar');
+            } else {
+                currentLang = 'en';
+                switcher.classList.remove('ar-active');
+                document.documentElement.setAttribute('dir', 'ltr');
+                document.documentElement.setAttribute('lang', 'en');
+                applyTranslations('en');
+            }
+        }
+
+        function applyTranslations(lang) {
+            // Translate elements with data-en/data-ar attributes
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.textContent = lang === 'ar' ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+            });
+            
+            // Translate by matching text content
+            if (lang === 'ar') {
+                translatePage(translations);
+            } else {
+                // Reverse translations
+                const reverse = {};
+                for (const [en, ar] of Object.entries(translations)) {
+                    reverse[ar] = en;
+                }
+                translatePage(reverse);
+            }
+        }
+
+        function translatePage(dict) {
+            // Nav links
+            document.querySelectorAll('.nav-links a, .btn, .hero-trust-badge, .stat-label, h2, h3, p, .footer-links a, .footer-bottom div, input, textarea, button').forEach(el => {
+                const text = el.textContent.trim();
+                if (dict[text]) {
+                    el.textContent = dict[text];
+                }
+                // Placeholders
+                if (el.placeholder && dict[el.placeholder]) {
+                    el.placeholder = dict[el.placeholder];
+                }
+            });
+        }
     </script>
 </body>
 </html>

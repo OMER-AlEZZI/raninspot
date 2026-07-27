@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://raninspot.com/sitemap.xml

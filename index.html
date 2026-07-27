@@ -1316,7 +1316,7 @@
                 <li><a href="#technology">Technology</a></li>
                 <li><a href="#about">About Founder</a></li>
             </ul>
-            <div class="lang-switcher" id="langSwitcher" onclick="toggleLanguage()">
+            <div class="lang-switcher" id="langSwitcher" role="button" tabindex="0" style="user-select:none;">
                 <span class="lang-option" id="langEN">EN</span>
                 <span class="lang-slider"></span>
                 <span class="lang-option" id="langAR">عربي</span>
@@ -1878,18 +1878,20 @@
             </div>
             
             <div class="contact-form glass fade-up" style="padding: 40px; border-radius: 24px; transition-delay: 0.1s;">
-                <form action="#" onsubmit="event.preventDefault(); alert('Thank you! Your message has been sent to the RaninSpot AI team.');">
+                <form action="https://formspree.io/f/xwpogjkq" method="POST" id="contactForm">
+                    <input type="hidden" name="_subject" value="New Contact from RaninSpot.com">
+                    <input type="hidden" name="_replyto" value="">
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Full Name" required>
+                        <input type="text" name="name" class="form-control" placeholder="Full Name" required>
                     </div>
                     <div class="form-group">
-                        <input type="email" class="form-control" placeholder="Professional Email Address" required>
+                        <input type="email" name="email" class="form-control" placeholder="Professional Email Address" required>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Organization / Hospital">
+                        <input type="text" name="organization" class="form-control" placeholder="Organization / Hospital">
                     </div>
                     <div class="form-group">
-                        <textarea class="form-control" placeholder="How can we help you?" required></textarea>
+                        <textarea name="message" class="form-control" placeholder="How can we help you?" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;">Send Message</button>
                 </form>
@@ -2159,6 +2161,28 @@
                 }
             });
         }
+        // Init language switcher event listener
+        document.getElementById('langSwitcher').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleLanguage();
+        });
+        document.getElementById('langSwitcher').addEventListener('touchend', function(e) {
+            e.preventDefault();
+            toggleLanguage();
+        });
+
+        // Contact form - send via mailto
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = this.querySelector('[name="name"]').value;
+            const email = this.querySelector('[name="email"]').value;
+            const org = this.querySelector('[name="organization"]').value;
+            const msg = this.querySelector('[name="message"]').value;
+            const body = `Name: ${name}%0AEmail: ${email}%0AOrganization: ${org}%0A%0AMessage:%0A${msg}`;
+            window.open(`mailto:contact@raninspot.com?subject=New Contact from ${name}&body=${body}`);
+            alert(currentLang === 'ar' ? 'شكراً! سيتم فتح تطبيق البريد لإرسال رسالتك.' : 'Thank you! Your email app will open to send your message.');
+        });
     </script>
 </body>
 </html>
